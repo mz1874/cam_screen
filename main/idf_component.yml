@@ -5,3 +5,4 @@ dependencies:
     version: '>=4.1.0'
   espressif/m5stack_tab5: ^1.0.0
   espressif/esp_io_expander: '*'
+  espressif/esp-tflite-micro: '*'

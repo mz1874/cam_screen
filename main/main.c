@@ -38,13 +38,15 @@ static void memory_monitor(void)
 static void grid_event_cb(lv_event_t *e)
 {
     lv_obj_t *obj = lv_event_get_target(e);
-    static uint8_t color_idx = 0;
-    lv_palette_t colors[] = {
-        LV_PALETTE_BLUE, LV_PALETTE_RED, LV_PALETTE_GREEN,
-        LV_PALETTE_YELLOW, LV_PALETTE_PURPLE};
-
-    lv_obj_set_style_bg_color(obj, lv_palette_main(colors[color_idx]), LV_PART_MAIN);
-    color_idx = (color_idx + 1) % 5;
+    lv_color_t cur = lv_obj_get_style_bg_color(obj, LV_PART_MAIN);
+    if (lv_color_eq(cur, lv_color_white()))
+    {
+        lv_obj_set_style_bg_color(obj, lv_color_black(), LV_PART_MAIN);
+    }
+    else
+    {
+        lv_obj_set_style_bg_color(obj, lv_color_white(), LV_PART_MAIN);
+    }
 }
 
 // 创建网格的辅助函数（支持偏移，便于居中）
