@@ -16,7 +16,7 @@ static const char *TAG = "M5_TAB5_EXAMPLE";
 #define GRID_SIZE 28
 static lv_obj_t **grid_objects = NULL; // 使用一维数组简化管理
 static uint32_t grid_count = 0;
-static lv_obj_t *label_result = NULL; // 推理结果显示标签
+static lv_obj_t *title = NULL; // 标题标签，用于显示推理结果
 
 // 内存监控
 static void memory_monitor(void)
@@ -69,10 +69,10 @@ static void infer_cb(lv_event_t *e)
     char result[50];
     mnist_infer(img, result, sizeof(result));
 
-    // 更新结果标签
-    if (label_result)
+    // 更新标题显示推理结果
+    if (title)
     {
-        lv_label_set_text(label_result, result);
+        lv_label_set_text(title, result);
     }
 }
 
@@ -210,8 +210,8 @@ void app_main(void)
     lv_obj_set_style_bg_color(scr, lv_color_hex(0x202020), LV_PART_MAIN);
 
     // 3. 先创建一个标题标签
-    lv_obj_t *title = lv_label_create(scr);
-    lv_label_set_text(title, "28x28 Grid Demo");
+    title = lv_label_create(scr);
+    lv_label_set_text(title, "Digital recognization from EEPW");
     lv_obj_set_style_text_color(title, lv_color_white(), 0);
     lv_obj_set_style_text_font(title, &lv_font_montserrat_24, 0);
     lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 10);
@@ -268,11 +268,6 @@ void app_main(void)
     lv_label_set_text(label_clear, "Clear");
     lv_obj_center(label_clear);
     lv_obj_add_event_cb(btn_clear, clear_grid_cb, LV_EVENT_CLICKED, NULL);
-
-    // 创建结果显示标签
-    label_result = lv_label_create(scr);
-    lv_obj_align(label_result, LV_ALIGN_BOTTOM_MID, 0, -25);
-    lv_label_set_text(label_result, "Draw a digit and press Inference");
 
     // 创建 Inference 按钮
     lv_obj_t *btn_infer = lv_btn_create(scr);
