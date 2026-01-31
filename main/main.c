@@ -186,6 +186,7 @@ void inference()
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
+
 void app_main(void)
 {
     setup();
@@ -299,7 +300,6 @@ void app_main(void)
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 
-    // 清理内存（实际上不会执行到这里）
     if (grid_objects)
     {
         heap_caps_free(grid_objects);
