@@ -1,15 +1,10 @@
-/**
- * @file lv_conf.h
- * Configuration file for v9.4.0
- */
 
 /*
- * Copy this file as `lv_conf.h`
- * 1. simply next to `lvgl` folder
- * 2. or to any other place and
- *    - define `LV_CONF_INCLUDE_SIMPLE`;
- *    - add the path as an include path.
+ * LVGL 配置文件 lv_conf.h
+ * 复制本文件到合适位置并根据需要修改配置。
  */
+
+#include <stddef.h>
 
 /* clang-format off */
 #if 1 /* Set this to "1" to enable content */
@@ -1467,6 +1462,31 @@
     /* Smart watch demo */
     #define LV_USE_DEMO_SMARTWATCH      0
 #endif /* LV_BUILD_DEMOS */
+
+/* Memory management */
+
+/* 1 is: use custom malloc/free, 0 is: use the built-in `lv_mem_alloc()` and `lv_mem_free()` */
+#define LV_MEM_CUSTOM      0  // 改为0，使用内置内存管理
+#if LV_MEM_CUSTOM == 0
+    /* Size of the memory available for `lv_mem_alloc()` in bytes (>= 2kB)*/
+    #define LV_MEM_SIZE    (1024U * 1024U * 2)          /* 512KB */
+    
+    /* Set an address for the memory pool instead of allocating it as a normal array. Can be in external SRAM too. */
+    #define LV_MEM_ADR          0     /*0: unused*/
+    
+    /* Instead of an address give a memory allocator that will be called to get a memory pool for LVGL. E.g. my_malloc */
+    #if LV_MEM_ADR == 0
+        /* 使用 PSRAM 作为 LVGL 内存池 */
+        #define LV_MEM_POOL_INCLUDE "esp_heap_caps.h"
+        #define LV_MEM_POOL_ALLOC(size) heap_caps_malloc(size, MALLOC_CAP_SPIRAM)
+    #endif
+
+#else       /*LV_MEM_CUSTOM*/
+    #define LV_MEM_CUSTOM_INCLUDE "esp_heap_caps.h"   /*Header for the dynamic memory function*/
+    #define LV_MALLOC(size)       heap_caps_malloc(size, MALLOC_CAP_SPIRAM)
+    #define LV_FREE(p)            heap_caps_free(p)
+    #define LV_REALLOC(p, size)   heap_caps_realloc(p, size, MALLOC_CAP_SPIRAM)
+#endif     /*LV_MEM_CUSTOM*/
 
 /*--END OF LV_CONF_H--*/
 
