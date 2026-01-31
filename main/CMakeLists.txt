@@ -1,4 +1,4 @@
-idf_component_register(SRCS "main.c"
+idf_component_register(SRCS "main.c" "main_functions.cc" "model.cc" "output_handler.cc"
                       INCLUDE_DIRS "." "../"
                       PRIV_REQUIRES spi_flash esp_timer unity m5stack_tab5 esp_driver_ppa)
 

@@ -8,6 +8,7 @@
 #include "bsp/m5stack_tab5.h"
 #include "../lv_conf.h"
 #include "lvgl.h"
+#include "main_functions.h"
 
 static const char *TAG = "M5_TAB5_EXAMPLE";
 
@@ -142,11 +143,20 @@ static bool create_grid_incremental(lv_obj_t *scr, lv_coord_t offset_x, lv_coord
     return created > 0;
 }
 
+void inference()
+{
+    while (1)
+    {
+        loop();
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
 void app_main(void)
 {
+    setup();
     ESP_LOGI(TAG, "Starting M5Stack Tab5 Grid Demo");
     ESP_LOGI(TAG, "ESP-IDF Version: %s", esp_get_idf_version());
-
+    xTaskCreatePinnedToCore(inference, "inference_task", 8 * 1024, NULL, 5, NULL, 1);
     // 显示内存信息
     ESP_LOGI(TAG, "Initial PSRAM free: %dKB",
              heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024);
