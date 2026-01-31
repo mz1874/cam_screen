@@ -16,6 +16,7 @@ static const char *TAG = "M5_TAB5_EXAMPLE";
 #define GRID_SIZE 28
 static lv_obj_t **grid_objects = NULL; // 使用一维数组简化管理
 static uint32_t grid_count = 0;
+static lv_obj_t *label_result = NULL; // 推理结果显示标签
 
 // 内存监控
 static void memory_monitor(void)
@@ -47,6 +48,40 @@ static void grid_event_cb(lv_event_t *e)
     else
     {
         lv_obj_set_style_bg_color(obj, lv_color_white(), LV_PART_MAIN);
+    }
+}
+
+static void infer_cb(lv_event_t *e)
+{
+    // 收集屏幕网格的像素数据
+    uint8_t img[28 * 28] = {0};
+    for (int i = 0; i < 28 * 28; i++)
+    {
+        if (grid_objects && grid_objects[i])
+        {
+            lv_color_t color = lv_obj_get_style_bg_color(grid_objects[i], LV_PART_MAIN);
+            // 黑色像素设为255，白色设为0
+            img[i] = lv_color_eq(color, lv_color_black()) ? 255 : 0;
+        }
+    }
+
+    // 进行推理
+    char result[50];
+    mnist_infer(img, result, sizeof(result));
+
+    // 更新结果标签
+    if (label_result)
+    {
+        lv_label_set_text(label_result, result);
+    }
+}
+
+static void clear_grid_cb(lv_event_t *e)
+{
+    for (uint32_t i = 0; i < GRID_SIZE * GRID_SIZE; i++)
+    {
+        if (grid_objects && grid_objects[i])
+            lv_obj_set_style_bg_color(grid_objects[i], lv_color_white(), LV_PART_MAIN);
     }
 }
 
@@ -232,25 +267,21 @@ void app_main(void)
     lv_obj_t *label_clear = lv_label_create(btn_clear);
     lv_label_set_text(label_clear, "Clear");
     lv_obj_center(label_clear);
-
-    // Clear 按钮回调
-    void clear_grid_cb(lv_event_t * e)
-    {
-        for (uint32_t i = 0; i < GRID_SIZE * GRID_SIZE; i++)
-        {
-            if (grid_objects && grid_objects[i])
-                lv_obj_set_style_bg_color(grid_objects[i], lv_color_white(), LV_PART_MAIN);
-        }
-    }
     lv_obj_add_event_cb(btn_clear, clear_grid_cb, LV_EVENT_CLICKED, NULL);
 
-    // 创建 Inference 按钮（暂不实现功能）
+    // 创建结果显示标签
+    label_result = lv_label_create(scr);
+    lv_obj_align(label_result, LV_ALIGN_BOTTOM_MID, 0, -25);
+    lv_label_set_text(label_result, "Draw a digit and press Inference");
+
+    // 创建 Inference 按钮
     lv_obj_t *btn_infer = lv_btn_create(scr);
     lv_obj_set_size(btn_infer, 100, 40);
     lv_obj_align(btn_infer, LV_ALIGN_BOTTOM_RIGHT, -20, -20);
     lv_obj_t *label_infer = lv_label_create(btn_infer);
     lv_label_set_text(label_infer, "Inference");
     lv_obj_center(label_infer);
+    lv_obj_add_event_cb(btn_infer, infer_cb, LV_EVENT_CLICKED, NULL);
 
     bsp_display_unlock();
 
